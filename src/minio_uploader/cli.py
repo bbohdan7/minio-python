@@ -68,6 +68,16 @@ def cmd_list_buckets(cfg: S3Config):
     for b in resp.get("Buckets", []):
         print(f"{b['Name']}\t{b['CreationDate']}")
 
+def cmd_show_file(bucket: str, key: str, cfg: S3Config):
+    """Download object and print its contents."""
+    s3 = cfg.make_client()
+    try:
+        obj = s3.get_object(Bucket=bucket, Key=key)
+        body = obj["Body"].read().decode("utf-8")
+        print(body)
+    except Exception as e:
+        print(f"[error] {e}")
+
 def build_parser():
     p = argparse.ArgumentParser(prog="minio-uploader", description="Work with MinIO via S3 (boto3)")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -116,6 +126,12 @@ def build_parser():
     # list-buckets
     sp = sub.add_parser("buckets", parents=[p_common], help="List all buckets")
     sp.set_defaults(func=lambda a: cmd_list_buckets(cfg_from_args(a)))
+
+    # show-file
+    sp = sub.add_parser("show-file", parents=[p_common], help="Display the contents of a file in a bucket")
+    sp.add_argument("bucket")
+    sp.add_argument("key", help="S3 object key (path to file)")
+    sp.set_defaults(func=lambda a: cmd_show_file(a.bucket, a.key, cfg_from_args(a)))
 
     sp = sub.add_parser("help", help="Show help for a command or the whole CLI")
     sp.add_argument("topic", nargs="?", help="Optional subcommand name, e.g. 'upload-file'")

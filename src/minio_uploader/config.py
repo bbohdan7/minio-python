@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from dotenv import load_dotenv
+import boto3
 
 load_dotenv()
 
@@ -25,4 +26,14 @@ class S3Config:
             secret_key=os.environ.get("S3_SECRET_KEY", ""),
             region=os.environ.get("S3_REGION", "us-east-1"),
             verify_ssl=_to_bool(os.environ.get("S3_VERIFY_SSL"), default=True),
+        )
+    
+    def make_client(self):
+        return boto3.client(
+            "s3",
+            endpoint_url=self.endpoint,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+            region_name=self.region,
+            verify=self.verify_ssl,
         )

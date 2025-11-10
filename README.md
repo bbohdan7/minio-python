@@ -1,18 +1,28 @@
-## 🧩 Приклад `.env`
+## 🚀 Швидкий старт
 
-Файл `.env` має бути у кореневій директорії проєкту, наприклад `~/minio_test/.env`.  
-CLI автоматично читає цей файл при старті.
+### 1️⃣ Клонувати репозиторій
+```bash
+git clone <repo_url> minio_test
+cd minio_test
 
-```env
-# URL або IP твого MinIO/S3 сервера
-S3_ENDPOINT=http://172.18.47.243:9000
+python3 -m venv .venv
+source .venv/bin/activate
 
-# Дані для аутентифікації
-S3_ACCESS_KEY=minio
-S3_SECRET_KEY=minio123
+python -m pip install -U pip setuptools wheel
+python -m pip install -e .
 
-# Регіон (можна залишити стандартний)
+nano .env
+
+S3_ENDPOINT=http://<API_ENDPOINT_MINIO>:9000
+S3_ACCESS_KEY=miniouser
+S3_SECRET_KEY=miniopass
 S3_REGION=us-east-1
-
-# Вимкнути SSL-перевірку (true / false)
 S3_VERIFY_SSL=false
+
+minio-uploader ensure-bucket my-bucket
+
+echo "Hello MinIO!" > hello.txt
+minio-uploader upload-file my-bucket ./hello.txt --key uploads/hello.txt
+
+minio-uploader ls my-bucket --prefix uploads/
+
